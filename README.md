@@ -43,3 +43,6 @@ by running `git clone git@github.com:<your git username>/<Your Repo name>.git`.
 * Add this to the `~/.gitconfig` file to use ssh instead of https for github.
 `[url "ssh://git@github.com/"]`
         `insteadOf = https://github.com/`
+
+
+### THE [MANUAL](https://cli.github.com/manual).
