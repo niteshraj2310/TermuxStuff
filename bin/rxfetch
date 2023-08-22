@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+
+# Credits: https://github.com/mayTermux/rxfetch-termux
+# Modified for personal use by Anonymousx97
+
+# Edited Some values A/C to my device's build.prop
+
+magenta="\033[1;35m"
+green="\033[1;32m"
+white="\033[1;37m"
+blue="\033[1;34m"
+red="\033[1;31m"
+black="\033[1;40;30m"
+yellow="\033[1;33m"
+cyan="\033[1;36m"
+reset="\033[0m"
+bgyellow="\033[1;43;33m"
+bgwhite="\033[1;47;37m"
+
+to_print=()
+
+
+function getCodeName() {
+  codename="$(getprop ro.product.system.device)"
+}
+
+
+function getClientBase() {
+  client_base="$(getprop ro.com.google.clientidbase)"
+}
+
+
+function getModel() {
+  model="$(getprop ro.product.system.model)"
+  if [ -z "${model}" ] ; then
+    to_print+=("  ┃                       ┃")
+    return
+  fi
+  to_print+=("  ┃                       ┃  ${magenta}host: ${reset}  ${model}")
+}
+
+
+function getDistro() {
+  os="$(uname -o) $(uname -m)"
+  to_print+=("  ┃          ${white}•${black}_${white}•${reset}          ┃  ${green}os:${reset}     ${os}")
+}
+
+
+function getKernel() {
+  kernel="$(uname -r)"
+  to_print+=("  ┃          ${black}${reset}${bgyellow}oo${reset}${black}|${reset}          ┃  ${cyan}ker:${reset}    ${kernel}")
+}
+
+
+function getTotalPackages() {
+  aptpackages=$(apt list --installed 2>/dev/null | wc -l)
+  to_print+=("  ┃         ${black}/${reset}${bghwite} ${reset}${black}'\'${reset}         ┃  ${blue}pkgs:${reset}   ${aptpackages}")
+}
+
+
+function getShell() {
+  if [ -G ~/.termux/shell ]; then
+    shell="$(basename $(realpath ~/.termux/shell))"
+  else
+    for file in /data/data/com.termux/files/usr/bin/bash /data/data/com.termux/files/usr/bin/sh /system/bin/sh; do
+      if [ -x $file ]; then
+        shell="$(basename $file)"
+        break
+      fi
+      done
+    fi
+  to_print+=("  ┃        ${bgyellow}(${reset}${black}\_;/${reset}${bgyellow})${reset}         ┃  ${red}sh:${reset}     ${shell}")
+}
+
+
+function getUptime() {
+  uptime="$(uptime --pretty | sed 's/up//')"
+  to_print+=("  ┃                       ┃  ${yellow}up:${reset}    ${uptime}")
+}
+
+
+function getMemoryUsage() {
+  #memory="$(free --mega | sed -n -E '2s/^[^0-9]*([0-9]+) *([0-9]+).*/'"${space}"'\2 \/ \1MB/p')"
+  _MEM="Mem:"
+  _GREP_ONE_ROW="$(free --mega | grep "${_MEM}")"
+  _TOTAL="$(echo ${_GREP_ONE_ROW} | awk '{print $2}')"
+  _USED="$(echo ${_GREP_ONE_ROW} | awk '{print $3}')"
+
+  memory="${_USED}MB ${red}/${white} ${_TOTAL}MB"
+  to_print+=("  ┃  Arch Loonix // Flex  ┃  ${magenta}ram:${reset}    ${memory}")
+}
+
+
+function getDiskUsage() {
+  _STORAGE_INFO=($(df -h | grep '/storage/emulated'))
+
+  # Thanks Octavia OS for breaking mounts ;_;
+  if [ -z $_STORAGE_INFO ]; then
+    for _su in /sbin/su /system/sbin/su /system/bin/su /system/xbin/su /su/bin/su /magisk/.core/bin/su
+    do
+        if [ -x $_su ]; then
+            _STORAGE_INFO=($($_su -c "df -h | grep '/data/media'"))
+            break
+        fi
+    done
+  fi
+
+  if [ -z $_STORAGE_INFO ]; then
+    return
+  fi
+
+  _SIZE=${_STORAGE_INFO[1]}
+  _USED=${_STORAGE_INFO[2]}
+  _AVAIL=${_STORAGE_INFO[3]}
+  _USE=${_STORAGE_INFO[4]}
+  storage="${_USED}B${red} / ${white}${_SIZE}B = ${green}${_AVAIL}B${white} (${_USE})"
+  to_print+=("  ┃                       ┃  ${green}disk:${reset}   ${storage}")
+}
+
+
+function addInit() {
+  to_print+=("  ┃                       ┃  ${yellow}init:${reset}   init.rc")
+}
+
+
+function printRx() {
+  echo -e "\n\n"
+  echo -e "  ┏━━━━━━━━━━━━━━━━━━━━━━━┓"
+  echo -e "  ┃  ${magenta}r${green}x${cyan}f${blue}e${red}t${yellow}${cyan}c${magenta}h${reset}     ${red}${reset}  ${yellow}${reset}  ${cyan}${reset}  ┃  ${codename}${red}@${reset}${client_base}"
+  echo -e "  ┣━━━━━━━━━━━━━━━━━━━━━━━┫"
+
+  for i in "${to_print[@]}";do echo -e "${i}";done
+
+  echo -e "  ┗━━━━━━━━━━━━━━━━━━━━━━━┛  ${magenta}━━━${green}━━━${white}━━━${blue}━━━${red}━━━${yellow}━━━${cyan}━━━"
+  echo -e "\n\n"
+}
+
+
+function main() {
+  getCodeName
+  getClientBase
+  getModel
+  getDistro
+  getKernel
+  getTotalPackages
+  getShell
+  addInit
+  getUptime
+  getMemoryUsage
+  getDiskUsage
+  printRx
+}
+
+main
