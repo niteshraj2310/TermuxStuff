@@ -22,4 +22,6 @@ bash -c "$(curl -fsSl https://raw.githubusercontent.com/niteshraj2310/TermuxStuf
 * anonymousx97 [ [TELEGRAM](https://anonymousx97.t.me) | [GITHUB](https://github.com/anonymousx97) ]
 > *this whole setup/script was his idea and shoutout to my man for creating a coolAF script.*
 
+* [JetBrainsFont](https://github.com/JetBrains/JetBrainsMono) | [Gogh](https://github.com/Gogh-Co/Gogh/blob/master/themes/) 
+
 * [mayTrmux](https://github.com/mayTermux) for rxfetch. 
